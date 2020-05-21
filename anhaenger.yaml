@@ -6,6 +6,10 @@ esphome:
 wifi:
   ssid: !secret wlan
   password: !secret wlan_pass
+  power_save_mode: high
+  ap:
+    ssid: "Fallback Hotspot"
+    password: !secret fallback_pass
 
 # Enable logging
 logger:
@@ -49,15 +53,62 @@ binary_sensor:
     on_release:
       then:
         - switch.turn_off: switch2
+
 switch:
   - platform: gpio
     pin: D3
     id: switch1
     interlock: &interlock_group [switch1, switch2]
+    on_turn_on:
+      - light.addressable_set:
+          id: maxbrightness
+          range_from: 0
+          range_to: 50
+          red: 100%
+          green: 0%
+          blue: 0%
+      - light.addressable_set:
+          id: maxbrightness
+          range_from: 51
+          range_to: 100
+          red: 0%
+          green: 100%
+          blue: 0%
+    on_turn_off:
+      - light.addressable_set:
+          id: maxbrightness
+          range_from: 0
+          range_to: 100
+          red: 10%
+          green: 10%
+          blue: 10%
   - platform: gpio
     pin: D4
     id: switch2
     interlock: *interlock_group
+    on_turn_on:
+      - light.addressable_set:
+          id: car
+          range_from: 0
+          range_to: 50
+          red: 50%
+          green: 0%
+          blue: 50%
+      - light.addressable_set:
+          id: car
+          range_from: 51
+          range_to: 100
+          red: 0%
+          green: 50%
+          blue: 50%
+    on_turn_off:
+      - light.addressable_set:
+          id: car
+          range_from: 0
+          range_to: 100
+          red: 10%
+          green: 10%
+          blue: 10%
 
 # control LED strip
 # LED out on D1-2
