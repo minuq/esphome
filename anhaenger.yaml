@@ -1,5 +1,5 @@
 esphome:
-  name: bell
+  name: anhaenger
   platform: ESP8266
   board: nodemcuv2
 
@@ -17,9 +17,6 @@ web_server:
     username: !secret webserver_name
     password: !secret webserver_pass
 
-# Enable Home Assistant API
-#api:
-
 ota:
 
 # connect to ioBroker
@@ -28,9 +25,56 @@ mqtt:
   username: !secret mqtt_name
   password: !secret mqtt_pass
 
+# Button IN on D5-D6
+binary_sensor:
+  - platform: gpio
+    pin:
+      number: D5
+      inverted: True
+    id: button1
+    on_press:
+      then:
+        - switch.turn_on: switch1
+    on_release:
+      then:
+        - switch.turn_off: switch1
+  - platform: gpio
+    pin:
+      number: D6
+      inverted: True
+    id: button2
+    on_press:
+      then:
+        - switch.turn_on: switch2
+    on_release:
+      then:
+        - switch.turn_off: switch2
+switch:
+  - platform: gpio
+    pin: D3
+    id: switch1
+    interlock: &interlock_group [switch1, switch2]
+  - platform: gpio
+    pin: D4
+    id: switch2
+    interlock: *interlock_group
+
 # control LED strip
-sensor:
-  - platform: adc
-    pin: A0
-    name: "Input 1"
-    update_interval: 0.1s
+# LED out on D1-2
+light:
+  - platform: fastled_clockless
+    chipset: WS2811
+    pin: D6
+    num_leds: 100
+    rgb_order: GRB
+    name: "Maximum Brightness"
+    id: maxbrightness
+    restore_mode: ALWAYS_OFF
+  - platform: fastled_clockless
+    chipset: WS2811
+    pin: D7
+    num_leds: 100
+    rgb_order: GRB
+    name: "Car Mode"
+    id: car
+    restore_mode: ALWAYS_OFF
