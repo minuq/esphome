@@ -1,0 +1,44 @@
+esphome:
+  name: kitchen
+  platform: ESP8266
+  board: nodemcuv2
+
+wifi:
+  ssid: !secret wlan
+  password: !secret wlan_pass
+
+# Enable logging
+logger:
+  level: DEBUG
+
+web_server:
+  port: 80
+  auth:
+    username: !secret webserver_name
+    password: !secret webserver_pass
+
+# Enable Home Assistant API
+#api:
+
+ota:
+
+# connect to ioBroker
+mqtt:
+  broker: 192.168.178.100
+  username: !secret mqtt_name
+  password: !secret mqtt_pass
+
+# control LED strip
+light:
+  - platform: fastled_clockless
+    chipset: WS2811
+    pin: D7
+    num_leds: 100
+    rgb_order: GRB
+    name: "Hängeschrank"
+    id: haengeschrank
+
+switch:
+  - platform: gpio
+    pin: D6
+    name: "radio"

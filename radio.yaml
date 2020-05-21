@@ -1,0 +1,160 @@
+esphome:
+  name: radio
+  platform: ESP8266
+  board: nodemcuv2
+
+wifi:
+  ssid: !secret wlan_sigrun
+  password: !secret wlan_sigrun_pass
+
+# Enable logging
+logger:
+  level: INFO
+
+# Enable webserver
+web_server:
+  port: 80
+  auth:
+    username: !secret webserver_name
+    password: !secret webserver_pass
+
+captive_portal:
+
+ota:
+
+#i2c Server
+i2c:
+  sda: GPIO3
+  scl: GPIO1
+  scan: True
+  id: bus_a
+
+# connect to ioBroker
+mqtt:
+  broker: 192.168.178.44
+
+switch:
+  - platform: gpio
+    pin: D5
+    id: radio_5
+    name: "radio_5"
+    on_turn_on:
+      - delay: 1s
+      - switch.turn_off: radio_5
+  - platform: gpio
+    pin: D6
+    id: radio_6
+    name: "radio_6"
+  - platform: gpio
+    pin: D5
+    id: radio_5s
+    name: "radio_5s"
+  - platform: gpio
+    pin: D6
+    id: radio_6s
+    name: "radio_6s"
+    restore_mode: RESTORE_DEFAULT_ON
+  - platform: gpio
+    pin: D7
+    id: radio_state
+    name: "radio_state"
+    restore_mode: RESTORE_DEFAULT_OFF
+
+output:
+  - platform: gpio
+    pin: D0
+    id: lBuiltin
+    inverted: True
+
+light:
+  - platform: binary
+    name: "LED_BUILTIN"
+    output: lBuiltin
+    id: nodeled
+
+binary_sensor:
+  - platform: gpio
+    pin: D0
+    id: "latch"
+    name: "latch"
+    filters:
+      - invert:
+      - delayed_on_off: 10s
+
+sensor:
+  - platform: bh1750
+    name: "BH1750 Illuminance"
+    address: 0x23
+    update_interval: 1s
+    id: slight
+    # every value change
+    on_value:
+      then:
+        - if:
+            # if lux level is above the desired level
+            condition:
+              sensor.in_range:
+                id: slight
+                above: 285.0
+            then:
+              - if:
+                  # check if light is off AND the latch is off, in which case the device has been off for >10s
+                  condition:
+                    - light.is_off: nodeled
+                    - binary_sensor.is_off: latch
+                  then:
+                    - light.turn_on: nodeled
+                    - switch.turn_on: radio_5
+                    - switch.turn_on: radio_state
+                    - logger.log:
+                        format: "starting up"
+                        level: WARN
+              # if shutdown has been initiated, but was disrupted (light flickering) turn back online
+              - if:
+                  condition:
+                    - light.is_off: nodeled
+                    - binary_sensor.is_on: latch
+                  then:
+                    - light.turn_on: nodeled
+                    - logger.log:
+                        format: "resetting to online"
+                        level: warn
+        - if:
+            condition:
+              # if lux level is below the desired level
+              sensor.in_range:
+                id: slight
+                below: 285.0
+            then:
+              - if:
+                  # if the light is on and the radio has been on for >10sec, turn it off
+                  condition:
+                    - light.is_on: nodeled
+                    - binary_sensor.is_on: latch
+                  # if it was, turn off the light
+                  then:
+                    - light.turn_off: nodeled
+                    - logger.log:
+                        format: "preparing for shutdown"
+                        level: WARN
+              - if:
+                  # if the light is off but the latch is on a shutdown has been initiated <10s ago
+                  condition:
+                    - light.is_off: nodeled
+                    - binary_sensor.is_on: latch
+                  then:
+                    - logger.log:
+                        format: "pending shutdown"
+                        level: WARN
+              # if both are off a shutdown has been initiated >= 10s ago, so turn the radio off
+              - if:
+                  condition:
+                    - light.is_off: nodeled
+                    - binary_sensor.is_off: latch
+                    - switch.is_on: radio_state
+                  then:
+                    - switch.turn_on: radio_5
+                    - switch.turn_off: radio_state
+                    - logger.log:
+                        format: "shutdown"
+                        level: WARN
