@@ -4,12 +4,14 @@ esphome:
   board: nodemcuv2
 
 wifi:
-  ssid: !secret wlan
-  password: !secret wlan_pass
+  ssid: !secret wlan_felix
+  password: !secret wlan_felix_pass
   power_save_mode: high
   ap:
     ssid: "Fallback Hotspot"
     password: !secret fallback_pass
+
+captive_portal:
 
 # Enable logging
 logger:
@@ -25,16 +27,17 @@ ota:
 
 # connect to ioBroker
 mqtt:
-  broker: 192.168.178.100
+  broker: 192.168.0.143
   username: !secret mqtt_name
   password: !secret mqtt_pass
 
-# Button IN on D5-D6
+# Button IN on D3-D4
 binary_sensor:
   - platform: gpio
     pin:
-      number: D5
+      number: D1
       inverted: True
+      mode: INPUT
     id: button1
     on_press:
       then:
@@ -44,8 +47,9 @@ binary_sensor:
         - switch.turn_off: switch1
   - platform: gpio
     pin:
-      number: D6
+      number: D4
       inverted: True
+      mode: INPUT
     id: button2
     on_press:
       then:
@@ -58,73 +62,42 @@ switch:
   - platform: gpio
     pin: D3
     id: switch1
-    interlock: &interlock_group [switch1, switch2]
+    #    interlock: &interlock_group [switch1, switch2]
     on_turn_on:
-      - light.addressable_set:
-          id: maxbrightness
-          range_from: 0
-          range_to: 50
-          red: 100%
-          green: 0%
-          blue: 0%
-      - light.addressable_set:
-          id: maxbrightness
-          range_from: 51
-          range_to: 100
-          red: 0%
-          green: 100%
-          blue: 0%
+      then:
+        - light.turn_on:
+            id: maxbrightness
+            red: 100%
+            green: 100%
+            blue: 100%
     on_turn_off:
-      - light.addressable_set:
-          id: maxbrightness
-          range_from: 0
-          range_to: 100
-          red: 10%
-          green: 10%
-          blue: 10%
+      then:
+        - light.turn_off:
+            id: maxbrightness
   - platform: gpio
-    pin: D4
+    pin: D2
     id: switch2
-    interlock: *interlock_group
+    #   interlock: *interlock_group
     on_turn_on:
-      - light.addressable_set:
-          id: car
-          range_from: 0
-          range_to: 50
-          red: 50%
-          green: 0%
-          blue: 50%
-      - light.addressable_set:
-          id: car
-          range_from: 51
-          range_to: 100
-          red: 0%
-          green: 50%
-          blue: 50%
+      - light.turn_on: car
     on_turn_off:
-      - light.addressable_set:
-          id: car
-          range_from: 0
-          range_to: 100
-          red: 10%
-          green: 10%
-          blue: 10%
+      - light.turn_off: car
 
 # control LED strip
-# LED out on D1-2
+# LED out on D7-8
 light:
   - platform: fastled_clockless
-    chipset: WS2811
-    pin: D6
+    chipset: WS2812
+    pin: D7
     num_leds: 100
     rgb_order: GRB
     name: "Maximum Brightness"
     id: maxbrightness
     restore_mode: ALWAYS_OFF
   - platform: fastled_clockless
-    chipset: WS2811
-    pin: D7
-    num_leds: 100
+    chipset: WS2812
+    pin: D8
+    num_leds: 200
     rgb_order: GRB
     name: "Car Mode"
     id: car

@@ -1,1 +1,1 @@
-collection of esp8266 config files for esphome
+A collection of esphome yaml files using the nodemcu v2 board, esp8266 platform
