@@ -18,7 +18,7 @@ web_server:
     password: !secret webserver_pass
 
 # Enable Home Assistant API
-#api:
+api:
 
 ota:
 
@@ -35,10 +35,5 @@ light:
     pin: D7
     num_leds: 100
     rgb_order: GRB
-    name: "Hängeschrank"
+    name: "Haengeschrank"
     id: haengeschrank
-
-switch:
-  - platform: gpio
-    pin: D6
-    name: "radio"
