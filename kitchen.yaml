@@ -20,7 +20,7 @@ web_server:
     password: !secret webserver_pass
 
 # Enable Home Assistant API
-api:
+# api:
 
 ota:
 
