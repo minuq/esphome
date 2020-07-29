@@ -53,3 +53,9 @@ light:
 binary_sensor:
   - platform: status
     name: "Küchenschrank"
+
+switch:
+  - platform: template
+    name: "Nicole"
+  - platform: template
+    name: "Florian"
