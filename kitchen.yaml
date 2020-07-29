@@ -7,6 +7,8 @@ wifi:
   ssid: !secret wlan
   password: !secret wlan_pass
 
+captive_portal: 
+
 # Enable logging
 logger:
   level: DEBUG
@@ -47,3 +49,7 @@ light:
     rgb_order: GRB
     name: "Haengeschrank"
     id: haengeschrank
+
+binary_sensor:
+  - platform: status
+    name: "Küchenschrank"
