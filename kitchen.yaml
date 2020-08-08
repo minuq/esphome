@@ -47,3 +47,4 @@ light:
     rgb_order: GRB
     name: "Haengeschrank"
     id: haengeschrank
+    default_transition_length: 0s
