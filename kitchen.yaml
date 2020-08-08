@@ -1,5 +1,4 @@
 esphome:
-  name: kitchen
   platform: ESP8266
   board: nodemcuv2
 
