@@ -1,5 +1,5 @@
 esphome:
-  name: "kitchen"
+  name: "kitchen2"
   platform: ESP8266
   board: nodemcuv2
 
@@ -30,23 +30,23 @@ mqtt:
   username: !secret mqtt_name
   password: !secret mqtt_pass
   on_message:
-    - topic: kitchen/light/haengeschrank/node
+    - topic: kitchen/light/arbeitsflaeche/node
       payload: "true"
       then:
-        - light.turn_on: "haengeschrank"
-    - topic: kitchen/light/haengeschrank/node
+        - light.turn_on: "arbeitsflaeche"
+    - topic: kitchen/light/arbeitsflaeche/node
       payload: "false"
       then:
-        - light.turn_off: "haengeschrank"
+        - light.turn_off: "arbeitsflaeche"
 
 
 # control LED strip
 light:
   - platform: fastled_clockless
-    chipset: WS2811
+    chipset: WS2812B
     pin: D7
     num_leds: 100
     rgb_order: GRB
-    name: "Haengeschrank"
-    id: haengeschrank
+    name: "Arbeitsflaeche"
+    id: arbeitsflaeche
     default_transition_length: 0s
