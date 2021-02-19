@@ -50,3 +50,10 @@ light:
     name: "Haengeschrank"
     id: haengeschrank
     default_transition_length: 0s
+
+# movement sensor
+binary_sensor:
+  - platform: gpio
+    pin: D8
+    name: "Kueche"
+    device_class: motion
