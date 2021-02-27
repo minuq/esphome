@@ -1,7 +1,7 @@
 esphome:
   name: "florian"
   platform: ESP8266
-  board: nodemcuv2
+  board: d1_mini
 
 wifi:
   ssid: !secret wlan
@@ -43,7 +43,7 @@ mqtt:
 # control LED strip
 light:
   - platform: fastled_clockless
-    chipset: WS2811
+    chipset: WS2812B
     pin: D7
     num_leds: 100
     rgb_order: GRB
