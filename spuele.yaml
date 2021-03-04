@@ -55,5 +55,5 @@ light:
 binary_sensor:
   - platform: gpio
     pin: D8
-    name: "Kueche"
+    name: "Spüle"
     device_class: motion
