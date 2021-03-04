@@ -33,20 +33,30 @@ mqtt:
     - topic: kitchen/light/arbeitsflaeche/node
       payload: "true"
       then:
-        - light.turn_on: "arbeitsflaeche"
+        - light.turn_on: "arbeitsflaeche_li"
+        - light.turn_on: "arbeitsflaeche_re"
     - topic: kitchen/light/arbeitsflaeche/node
       payload: "false"
       then:
-        - light.turn_off: "arbeitsflaeche"
-
+        - light.turn_off: "arbeitsflaeche_li"
+        - light.turn_off: "arbeitsflaeche_re"
 
 # control LED strip
 light:
   - platform: fastled_clockless
-    chipset: WS2812B
+    chipset: WS2811
     pin: D7
     num_leds: 100
     rgb_order: GRB
-    name: "Arbeitsflaeche"
-    id: arbeitsflaeche
+    name: "Arbeitsflaeche_re"
+    id: arbeitsflaeche_re
     default_transition_length: 0s
+  - platform: fastled_clockless
+    chipset: WS2811
+    pin: D6
+    num_leds: 100
+    rgb_order: GRB
+    name: "Arbeitsflaeche_li"
+    id: arbeitsflaeche_li
+    default_transition_length: 0s
+
