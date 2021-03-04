@@ -1,0 +1,59 @@
+esphome:
+  name: "spuele"
+  platform: ESP8266
+  board: nodemcuv2
+
+wifi:
+  ssid: !secret wlan
+  password: !secret wlan_pass
+
+captive_portal: 
+
+# Enable logging
+logger:
+  level: DEBUG
+
+web_server:
+  port: 80
+  auth:
+    username: !secret webserver_name
+    password: !secret webserver_pass
+
+# Enable Home Assistant API
+api:
+
+ota:
+
+# connect to ioBroker
+mqtt:
+  broker: !secret broker
+  username: !secret mqtt_name
+  password: !secret mqtt_pass
+  on_message:
+    - topic: kitchen/light/spuele/node
+      payload: "true"
+      then:
+        - light.turn_on: "spuele"
+    - topic: kitchen/light/spuele/node
+      payload: "false"
+      then:
+        - light.turn_off: "spuele"
+
+
+# control LED strip
+light:
+  - platform: fastled_clockless
+    chipset: WS2811
+    pin: D7
+    num_leds: 100
+    rgb_order: GRB
+    name: "spuele"
+    id: spuele
+    default_transition_length: 0s
+
+# movement sensor
+binary_sensor:
+  - platform: gpio
+    pin: D8
+    name: "Kueche"
+    device_class: motion
